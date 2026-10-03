@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>线性代数计算器（五章）</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.js"></script>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --primary-dark: #357abd;
+            --bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text: #333333;
+            --border: #e0e6ed;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            
+            background-image: url('boqita.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+        }       
+        .container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+        }        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .header h1 { margin: 0; font-size: 24px; }
+        .tabs {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+        }
+        .tab.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background: white;
+        }
+        .panel { display: none; padding: 25px; }
+        .panel.active { display: block; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        input[type="text"], input[type="number"] {
+            width: 100%; padding: 10px; border: 1px solid var(--border);
+            border-radius: 6px; font-size: 14px; box-sizing: border-box;
+        }
+        .btn {
+            background: var(--primary); color: white; border: none;
+            padding: 10px 20px; border-radius: 6px; cursor: pointer;
+            font-size: 14px; margin-top: 10px;
+        }
+        .btn:hover { background: var(--primary-dark); }
+        .btn-sm { padding: 5px 10px; font-size: 12px; margin: 0; }
+        .result {
+            margin-top: 20px; padding: 15px; background: #f8fafc;
+            border: 1px solid var(--border); border-radius: 6px;
+            font-family: 'Consolas', monospace; white-space: pre-wrap;
+            max-height: 400px; overflow-y: auto;
+        }
+        .matrix-row { display: flex; gap: 8px; margin-bottom: 8px; }
+        .matrix-row input { flex: 1; text-align: center; }
+        .error { color: #e53e3e; }
+        .success { color: #38a169; }
+        .global-setting {
+            padding: 10px 20px; background: #eef4fb; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px; font-size: 14px;
+        }
+        .global-setting input { width: 80px; padding: 5px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>📐 线性代数计算器（五章）</h1>
+        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">课程设计 | 姓名：你的名字 | 学号：123456</p>
+    </div>
+
+    <!-- 新增：全局随机数范围设置 -->
+    <div class="global-setting">
+        <span>🎲 随机数生成范围：</span>
+        <input type="number" id="randMin" value="-20">
+        <span>至</span>
+        <input type="number" id="randMax" value="20">
+        <span style="font-size:12px; color:#888;">(修改后点击任意“生成矩阵”按钮生效)</span>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(1)">第1章 行列式</div>
+        <div class="tab" onclick="switchTab(2)">第2章 矩阵运算</div>
+        <div class="tab" onclick="switchTab(3)">第3章 向量组</div>
+        <div class="tab" onclick="switchTab(4)">第4章 线性方程组</div>
+        <div class="tab" onclick="switchTab(5)">第5章 特征值</div>
+    </div>
+
+    <!-- 第1章：行列式 -->
+    <div id="panel1" class="panel active">
+        <h3>行列式计算</h3>
+        <div class="form-group">
+            <label>矩阵阶数 n：</label>
+            <input type="number" id="detN" value="3" min="1" max="10">
+            <button class="btn btn-sm" onclick="generateMatrix('det')" style="margin-left:10px;">生成矩阵</button>
+        </div>
+        <div id="detMatrixContainer"></div>
+        <button class="btn" onclick="calcDet()">计算行列式</button>
+        <div id="detResult" class="result" style="display:none;"></div>
+        
+        <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #ccc;">
+        
+        <!-- 新增：逆序数计算 -->
+        <h3>逆序数计算</h3>
+        <div class="form-group">
+            <label>输入排列（如 3,1,2 或 3 1 2）：</label>
+            <input type="text" id="permInput" value="3,1,2">
+        </div>
+        <button class="btn" onclick="calcInversion()">计算逆序数</button>
+        <div id="invResult" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 第2章：矩阵运算 -->
+    <div id="panel2" class="panel">
+        <h3>矩阵运算</h3>
+        <div class="form-group">
+            <label>矩阵阶数 n：</label>
+            <input type="number" id="matN" value="3" min="2" max="10">
+            <button class="btn btn-sm" onclick="generateMatrix('mat')" style="margin-left:10px;">生成矩阵 A 和 B</button>
+        </div>
+        <div id="matAContainer" style="margin-top:10px;"><h4>矩阵 A</h4></div>
+        <div id="matBContainer"><h4>矩阵 B</h4></div>
+        <button class="btn" onclick="calcMat()">计算 A+B, A-B, A×B, A的逆</button>
+        <div id="matResult" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 第3章：向量组 -->
+    <div id="panel3" class="panel">
+        <h3>向量组线性相关性</h3>
+        <div class="form-group">
+            <label>向量个数 m（列数）：</label>
+            <input type="number" id="vecM" value="3" min="1" max="10">
+            <label>向量维数 n（行数）：</label>
+            <input type="number" id="vecN" value="3" min="1" max="10">
+            <button class="btn btn-sm" onclick="generateMatrix('vec')" style="margin-left:10px;">生成向量组</button>
+        </div>
+        <div id="vecMatrixContainer"></div>
+        <button class="btn" onclick="calcVec()">判断线性相关性</button>
+        <div id="vecResult" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 第4章：线性方程组 -->
+    <div id="panel4" class="panel">
+        <h3>线性方程组求解</h3>
+        <div class="form-group">
+            <label>未知数个数 n：</label>
+            <input type="number" id="eqN" value="3" min="2" max="10">
+            <button class="btn btn-sm" onclick="generateMatrix('eq')" style="margin-left:10px;">生成增广矩阵</button>
+        </div>
+        <div id="eqMatrixContainer"></div>
+        <button class="btn" onclick="calcEq()">求解方程组</button>
+        <div id="eqResult" class="result" style="display:none;"></div>
+    </div>
+
+    <!-- 第5章：特征值 -->
+    <div id="panel5" class="panel">
+        <h3>特征值与特征向量</h3>
+        <div class="form-group">
+            <label>矩阵阶数 n：</label>
+            <input type="number" id="eigN" value="3" min="2" max="5">
+            <button class="btn btn-sm" onclick="generateMatrix('eig')" style="margin-left:10px;">生成矩阵</button>
+        </div>
+        <div id="eigMatrixContainer"></div>
+        <button class="btn" onclick="calcEig()">计算特征值与特征向量</button>
+        <div id="eigResult" class="result" style="display:none;"></div>
+    </div>
+</div>
+
+<script>
+// ==================== 音效引擎 ====================
+let audioCtx = null;
+
+function initAudio() {
+    try {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    } catch (e) {
+        console.log("浏览器不支持音频", e);
+    }
+}
+
+function playTone(freq, type, duration, vol) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+function soundClick() { initAudio(); playTone(600, 'sine', 0.08, 0.1); }
+function soundSuccess() {
+    initAudio();
+    playTone(523.25, 'sine', 0.15, 0.1); // C5
+    setTimeout(() => playTone(659.25, 'sine', 0.3, 0.1), 100); // E5
+}
+function soundError() {
+    initAudio();
+    playTone(250, 'sawtooth', 0.2, 0.1);
+    setTimeout(() => playTone(180, 'sawtooth', 0.3, 0.1), 150);
+}
+
+// ==================== 页面逻辑 ====================
+
+function switchTab(num) {
+    soundClick();
+    document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === num - 1));
+    document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === num - 1));
+}
+
+// 生成矩阵输入框 (读取全局随机数范围并随机填充)
+function generateMatrix(type) {
+    // 获取用户设置的随机数范围
+    let minVal = parseInt(document.getElementById('randMin').value);
+    let maxVal = parseInt(document.getElementById('randMax').value);
+    
+    // 容错处理
+    if (isNaN(minVal)) minVal = -20;
+    if (isNaN(maxVal)) maxVal = 20;
+    if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
+
+    // 随机数生成函数
+    const randVal = () => Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
+
+    if (type === 'det') {
+        const n = parseInt(document.getElementById('detN').value);
+        const container = document.getElementById('detMatrixContainer');
+        let html = '';
+        for (let i = 0; i < n; i++) {
+            html += '<div class="matrix-row">';
+            for (let j = 0; j < n; j++) {
+                html += `<input type="number" id="det_${i}_${j}" value="${randVal()}" step="any">`;
+            }
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    } else if (type === 'mat') {
+        const n = parseInt(document.getElementById('matN').value);
+        const containerA = document.getElementById('matAContainer');
+        const containerB = document.getElementById('matBContainer');
+        let htmlA = '', htmlB = '';
+        for (let i = 0; i < n; i++) {
+            htmlA += '<div class="matrix-row">';
+            htmlB += '<div class="matrix-row">';
+            for (let j = 0; j < n; j++) {
+                htmlA += `<input type="number" id="matA_${i}_${j}" value="${randVal()}" step="any">`;
+                htmlB += `<input type="number" id="matB_${i}_${j}" value="${randVal()}" step="any">`;
+            }
+            htmlA += '</div>';
+            htmlB += '</div>';
+        }
+        containerA.innerHTML = '<h4>矩阵 A</h4>' + htmlA;
+        containerB.innerHTML = '<h4>矩阵 B</h4>' + htmlB;
+    } else if (type === 'vec') {
+        const m = parseInt(document.getElementById('vecM').value);
+        const n = parseInt(document.getElementById('vecN').value);
+        const container = document.getElementById('vecMatrixContainer');
+        let html = '';
+        for (let i = 0; i < n; i++) {
+            html += '<div class="matrix-row">';
+            for (let j = 0; j < m; j++) {
+                html += `<input type="number" id="vec_${i}_${j}" value="${randVal()}" step="any">`;
+            }
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    } else if (type === 'eq') {
+        const n = parseInt(document.getElementById('eqN').value);
+        const container = document.getElementById('eqMatrixContainer');
+        let html = '';
+        for (let i = 0; i < n; i++) {
+            html += '<div class="matrix-row">';
+            for (let j = 0; j <= n; j++) {
+                html += `<input type="number" id="eq_${i}_${j}" value="${randVal()}" step="any">`;
+            }
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    } else if (type === 'eig') {
+        const n = parseInt(document.getElementById('eigN').value);
+        const container = document.getElementById('eigMatrixContainer');
+        let html = '';
+        for (let i = 0; i < n; i++) {
+            html += '<div class="matrix-row">';
+            for (let j = 0; j < n; j++) {
+                html += `<input type="number" id="eig_${i}_${j}" value="${randVal()}" step="any">`;
+            }
+            html += '</div>';
+        }
+        container.innerHTML = html;
+    }
+}
+
+// 第1章：行列式
+function calcDet() {
+    const n = parseInt(document.getElementById('detN').value);
+    const resultDiv = document.getElementById('detResult');
+    let output = '';
+    try {
+        let matrix = [];
+        for (let i = 0; i < n; i++) {
+            let row = [];
+            for (let j = 0; j < n; j++) {
+                row.push(parseFloat(document.getElementById(`det_${i}_${j}`).value));
+            }
+            matrix.push(row);
+        }
+        const det = math.det(matrix);
+        output = `行列式 det(A) = ${det.toFixed(10)}`;
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 新增：逆序数计算
+function calcInversion() {
+    const str = document.getElementById('permInput').value.trim();
+    const resultDiv = document.getElementById('invResult');
+    let output = '';
+    
+    if (!str) {
+        output = "❌ 错误：请输入排列";
+        resultDiv.className = 'result error';
+        resultDiv.textContent = output;
+        resultDiv.style.display = 'block';
+        soundError();
+        return;
+    }
+
+    try {
+        // 把输入按逗号或空格切分成数组
+        const arr = str.split(/[\s,]+/).map(Number);
+        
+        // 检查是否是 1 到 n 的排列
+        const n = arr.length;
+        const sorted = [...arr].sort((a, b) => a - b);
+        for (let i = 0; i < n; i++) {
+            if (sorted[i] !== i + 1) {
+                throw new Error("请输入 1 到 " + n + " 的连续排列！");
+            }
+        }
+
+        // 计算逆序数
+        let invCount = 0;
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                if (arr[i] > arr[j]) invCount++;
+            }
+        }
+
+        const type = invCount % 2 === 0 ? "偶排列" : "奇排列";
+        output = `排列 [${arr.join(', ')}] 的逆序数为：${invCount}\n👉 这是一个${type}`;
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 第2章：矩阵运算
+function calcMat() {
+    const n = parseInt(document.getElementById('matN').value);
+    const resultDiv = document.getElementById('matResult');
+    let output = '';
+    try {
+        let A = [], B = [];
+        for (let i = 0; i < n; i++) {
+            let rowA = [], rowB = [];
+            for (let j = 0; j < n; j++) {
+                rowA.push(parseFloat(document.getElementById(`matA_${i}_${j}`).value));
+                rowB.push(parseFloat(document.getElementById(`matB_${i}_${j}`).value));
+            }
+            A.push(rowA); B.push(rowB);
+        }
+        
+        const sum = math.add(A, B);
+        const sub = math.subtract(A, B);
+        const mul = math.multiply(A, B);
+        const invA = math.inv(A);
+
+        output += "A + B =\n" + JSON.stringify(sum) + "\n\n";
+        output += "A - B =\n" + JSON.stringify(sub) + "\n\n";
+        output += "A × B =\n" + JSON.stringify(mul) + "\n\n";
+        output += "A 的逆矩阵 =\n" + JSON.stringify(invA) + "\n";
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 第3章：向量组
+function calcVec() {
+    const m = parseInt(document.getElementById('vecM').value);
+    const n = parseInt(document.getElementById('vecN').value);
+    const resultDiv = document.getElementById('vecResult');
+    let output = '';
+    try {
+        let matrix = [];
+        for (let i = 0; i < n; i++) {
+            let row = [];
+            for (let j = 0; j < m; j++) {
+                row.push(parseFloat(document.getElementById(`vec_${i}_${j}`).value));
+            }
+            matrix.push(row);
+        }
+        const rank = math.rank(matrix);
+        if (rank === m) {
+            output = `矩阵的秩 R(A) = ${rank}，等于向量个数 ${m}。\n👉 结论：向量组线性无关。`;
+        } else {
+            output = `矩阵的秩 R(A) = ${rank}，小于向量个数 ${m}。\n👉 结论：向量组线性相关。`;
+        }
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 第4章：线性方程组
+function calcEq() {
+    const n = parseInt(document.getElementById('eqN').value);
+    const resultDiv = document.getElementById('eqResult');
+    let output = '';
+    try {
+        let M = [];
+        for (let i = 0; i < n; i++) {
+            let row = [];
+            for (let j = 0; j <= n; j++) {
+                row.push(parseFloat(document.getElementById(`eq_${i}_${j}`).value));
+            }
+            M.push(row);
+        }
+        
+        let mat = M.map(row => [...row]);
+        let row = 0;
+        for (let col = 0; col < n && row < n; col++) {
+            let pivot = row;
+            for (let i = row + 1; i < n; i++) {
+                if (Math.abs(mat[i][col]) > Math.abs(mat[pivot][col])) pivot = i;
+            }
+            if (Math.abs(mat[pivot][col]) < 1e-10) continue;
+            [mat[row], mat[pivot]] = [mat[pivot], mat[row]];
+            for (let i = row + 1; i < n; i++) {
+                let factor = mat[i][col] / mat[row][col];
+                for (let j = col; j <= n; j++) mat[i][j] -= factor * mat[row][j];
+            }
+            row++;
+        }
+
+        let inconsistent = false;
+        for (let i = 0; i < n; i++) {
+            let allZero = true;
+            for (let j = 0; j < n; j++) if (Math.abs(mat[i][j]) > 1e-10) allZero = false;
+            if (allZero && Math.abs(mat[i][n]) > 1e-10) inconsistent = true;
+        }
+
+        if (inconsistent) {
+            output = "👉 结论：方程组无解（增广矩阵的秩大于系数矩阵的秩）。";
+        } else {
+            let rank = 0;
+            for (let i = 0; i < n; i++) {
+                let hasNonZero = false;
+                for (let j = 0; j < n; j++) if (Math.abs(mat[i][j]) > 1e-10) hasNonZero = true;
+                if (hasNonZero) rank++;
+            }
+            if (rank === n) {
+                let x = new Array(n).fill(0);
+                for (let i = n - 1; i >= 0; i--) {
+                    let s = mat[i][n];
+                    for (let j = i + 1; j < n; j++) s -= mat[i][j] * x[j];
+                    x[i] = s / mat[i][i];
+                }
+                output = "👉 结论：方程组有唯一解。\n解为：x = [" + x.map(v => v.toFixed(6)).join(', ') + "]";
+            } else {
+                output = "👉 结论：方程组有无穷多解（系数矩阵的秩小于未知数个数 " + n + "）。";
+            }
+        }
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 第5章：特征值
+function calcEig() {
+    const n = parseInt(document.getElementById('eigN').value);
+    const resultDiv = document.getElementById('eigResult');
+    let output = '';
+    try {
+        let matrix = [];
+        for (let i = 0; i < n; i++) {
+            let row = [];
+            for (let j = 0; j < n; j++) {
+                row.push(parseFloat(document.getElementById(`eig_${i}_${j}`).value));
+            }
+            matrix.push(row);
+        }
+        
+        const result = math.eigs(matrix);
+        output = "特征值：\n";
+        result.values.forEach((val, i) => {
+            if (typeof val === 'object' && val.re !== undefined) {
+                output += `λ${i+1} = ${val.re.toFixed(6)} + ${val.im.toFixed(6)}i\n`;
+            } else {
+                output += `λ${i+1} = ${val.toFixed(6)}\n`;
+            }
+        });
+        
+        output += "\n特征向量：\n";
+        result.vectors.forEach((vec, i) => {
+            output += `v${i+1} = [` + vec.map(v => v.toFixed(4)).join(', ') + "]\n";
+        });
+
+        resultDiv.className = 'result success';
+        soundSuccess();
+    } catch (e) {
+        output = "❌ 错误：" + e.message;
+        resultDiv.className = 'result error';
+        soundError();
+    }
+    resultDiv.textContent = output;
+    resultDiv.style.display = 'block';
+}
+
+// 初始化
+generateMatrix('det');
+generateMatrix('mat');
+generateMatrix('vec');
+generateMatrix('eq');
+generateMatrix('eig');
+</script>
+
+</body>
+</html>
