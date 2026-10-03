@@ -133,11 +133,11 @@
         
         <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #ccc;">
         
-        <!-- 新增：逆序数计算 -->
+        <!-- 修改：逆序数计算（去掉严格1到n校验，支持任意数字序列） -->
         <h3>逆序数计算</h3>
         <div class="form-group">
-            <label>输入排列（如 3,1,2 或 3 1 2）：</label>
-            <input type="text" id="permInput" value="3,1,2">
+            <label>输入数字序列（如 3,1,2 或 3 1 2 或 8 5 3）：</label>
+            <input type="text" id="permInput" value="8 5 3">
         </div>
         <button class="btn" onclick="calcInversion()">计算逆序数</button>
         <div id="invResult" class="result" style="display:none;"></div>
@@ -200,7 +200,7 @@
 </div>
 
 <script>
-// ==================== 音效引擎 ====================
+// ==================== 音效引擎 (Minecraft 风格) ====================
 let audioCtx = null;
 
 function initAudio() {
@@ -216,12 +216,20 @@ function initAudio() {
     }
 }
 
-function playTone(freq, type, duration, vol) {
+// 播放单个音调的基础函数（新增结束频率参数，支持滑音）
+function playTone(freq, type, duration, vol, freqEnd = null) {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    
+    if (freqEnd) {
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(freqEnd, audioCtx.currentTime + duration);
+    } else {
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    }
+    
     gain.gain.setValueAtTime(vol, audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
     osc.connect(gain);
@@ -230,16 +238,30 @@ function playTone(freq, type, duration, vol) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-function soundClick() { initAudio(); playTone(600, 'sine', 0.08, 0.1); }
+// 1. 点击标签/按钮的声音（MC 木头按钮“咔哒”声）
+function soundClick() { 
+    initAudio(); 
+    playTone(600, 'triangle', 0.08, 0.15, 200); 
+}
+
+// 2. 生成矩阵的声音（MC 物品弹出/活塞声）
+function soundGenerate() {
+    initAudio();
+    playTone(150, 'square', 0.1, 0.1, 50); 
+}
+
+// 3. 计算成功的声音（MC 经验球“叮铃”声）
 function soundSuccess() {
     initAudio();
-    playTone(523.25, 'sine', 0.15, 0.1); // C5
-    setTimeout(() => playTone(659.25, 'sine', 0.3, 0.1), 100); // E5
+    playTone(800, 'sine', 0.1, 0.1);
+    setTimeout(() => playTone(1200, 'sine', 0.1, 0.1), 60);
+    setTimeout(() => playTone(1600, 'sine', 0.15, 0.1), 120);
 }
+
+// 4. 计算失败的声音（MC 村民“哼”声）
 function soundError() {
     initAudio();
-    playTone(250, 'sawtooth', 0.2, 0.1);
-    setTimeout(() => playTone(180, 'sawtooth', 0.3, 0.1), 150);
+    playTone(150, 'sawtooth', 0.3, 0.1, 80);
 }
 
 // ==================== 页面逻辑 ====================
@@ -252,16 +274,15 @@ function switchTab(num) {
 
 // 生成矩阵输入框 (读取全局随机数范围并随机填充)
 function generateMatrix(type) {
-    // 获取用户设置的随机数范围
+    soundGenerate(); // 👈 新增：点击生成矩阵时播放音效
+
     let minVal = parseInt(document.getElementById('randMin').value);
     let maxVal = parseInt(document.getElementById('randMax').value);
     
-    // 容错处理
     if (isNaN(minVal)) minVal = -20;
     if (isNaN(maxVal)) maxVal = 20;
     if (minVal > maxVal) { let temp = minVal; minVal = maxVal; maxVal = temp; }
 
-    // 随机数生成函数
     const randVal = () => Math.floor(Math.random() * (maxVal - minVal + 1)) + minVal;
 
     if (type === 'det') {
@@ -360,14 +381,14 @@ function calcDet() {
     resultDiv.style.display = 'block';
 }
 
-// 新增：逆序数计算
+// 逆序数计算（去掉强制1到n校验，支持任意数字序列）
 function calcInversion() {
     const str = document.getElementById('permInput').value.trim();
     const resultDiv = document.getElementById('invResult');
     let output = '';
     
     if (!str) {
-        output = "❌ 错误：请输入排列";
+        output = "❌ 错误：请输入数字序列";
         resultDiv.className = 'result error';
         resultDiv.textContent = output;
         resultDiv.style.display = 'block';
@@ -376,19 +397,11 @@ function calcInversion() {
     }
 
     try {
-        // 把输入按逗号或空格切分成数组
         const arr = str.split(/[\s,]+/).map(Number);
-        
-        // 检查是否是 1 到 n 的排列
         const n = arr.length;
-        const sorted = [...arr].sort((a, b) => a - b);
-        for (let i = 0; i < n; i++) {
-            if (sorted[i] !== i + 1) {
-                throw new Error("请输入 1 到 " + n + " 的连续排列！");
-            }
-        }
 
-        // 计算逆序数
+        if (n < 2) throw new Error("至少输入两个数字才能计算逆序数！");
+
         let invCount = 0;
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
@@ -397,7 +410,7 @@ function calcInversion() {
         }
 
         const type = invCount % 2 === 0 ? "偶排列" : "奇排列";
-        output = `排列 [${arr.join(', ')}] 的逆序数为：${invCount}\n👉 这是一个${type}`;
+        output = `数字序列 [${arr.join(', ')}] 的逆序数为：${invCount}\n👉 这是一个${type}`;
         resultDiv.className = 'result success';
         soundSuccess();
     } catch (e) {
