@@ -382,6 +382,7 @@ function calcDet() {
 }
 
 // 逆序数计算（去掉强制1到n校验，支持任意数字序列）
+// 逆序数计算（升级版：支持不带空格的纯数字，如 46456476）
 function calcInversion() {
     const str = document.getElementById('permInput').value.trim();
     const resultDiv = document.getElementById('invResult');
@@ -397,11 +398,22 @@ function calcInversion() {
     }
 
     try {
-        const arr = str.split(/[\s,]+/).map(Number);
+        let arr = [];
+        // 判断输入的格式
+        if (str.includes(' ') || str.includes(',')) {
+            // 如果有空格或逗号，就按空格/逗号切割（支持多位数，如 10 2 7）
+            arr = str.split(/[\s,]+/).map(Number);
+        } else if (/^\d+$/.test(str)) {
+            // 如果没有空格没有逗号，且全都是数字，就自动拆分成单个数字
+            arr = str.split('').map(Number);
+        } else {
+            throw new Error("输入格式错误，请输入数字！");
+        }
+
         const n = arr.length;
+        if (n < 2) throw new Error("至少需要两个数字才能计算逆序数！");
 
-        if (n < 2) throw new Error("至少输入两个数字才能计算逆序数！");
-
+        // 计算逆序数
         let invCount = 0;
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
@@ -421,7 +433,7 @@ function calcInversion() {
     resultDiv.textContent = output;
     resultDiv.style.display = 'block';
 }
-
+    
 // 第2章：矩阵运算
 function calcMat() {
     const n = parseInt(document.getElementById('matN').value);
