@@ -14,19 +14,44 @@
             --text: #333333;
             --border: #e0e6ed;
         }
+	.easter-egg-btn {
+    		position: fixed;      /* 悬浮固定在屏幕上 */
+    		bottom: 20px;
+    		right: 20px;
+    		width: 80px;          /* 设置图片宽度 */
+    		height: 80px;         /* 设置图片高度 */
+    		cursor: pointer;
+    		opacity: 0.25;        /* 平时透明度调低，隐藏得更深 */
+    		transition: opacity 0.3s, transform 0.3s;
+    		z-index: 9999;
+    		user-select: none;
+    		display: flex;
+    		justify-content: center;
+    		align-items: center;
+		}
+	.easter-egg-btn img {
+    		width: 100%;
+    		height: 100%;
+    		object-fit: contain;  /* 保持图片比例不变形 */
+    		filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2)); /* 给图片加点小阴影，更好看 */
+		}
+	.easter-egg-btn:hover {
+    		opacity: 1;           /* 鼠标移上去完全显示 */
+    		transform: scale(1.2) rotate(10deg); /* 放大并轻微旋转，更活泼 */
+		}
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            
-            background-image: url('boqita.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-        }       
+   	 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   	 
+    	 background-image: var(--bg-image, url('tupian1.jpg')); /* 默认用dgut.jpg */
+   	 background-size: cover;
+   	 background-position: center;
+    	 background-attachment: fixed;
+    	 color: var(--text);
+    	 margin: 0;
+   	 padding: 20px;
+    	 display: flex;
+    justify-content: center;
+		}
         .container {
             width: 100%;
             max-width: 1000px;
@@ -98,8 +123,8 @@
 
 <div class="container">
     <div class="header">
-        <h1>📐 线性代数计算器（五章）</h1>
-        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">课程设计 | 姓名：谭力菲 | 学号：2026404030325</p>
+    <h1>📐 线性代数计算器（五章）</h1>
+    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">课程设计 | 姓名：谭力菲 | 学号：2026404030325</p>
     </div>
 
     <!-- 新增：全局随机数范围设置 -->
@@ -200,6 +225,59 @@
 </div>
 
 <script>
+// ==================== 壁纸切换功能 ====================
+// ==================== 壁纸与彩蛋联动功能 ====================
+// 把壁纸和对应的图标配对放好
+const themeConfig = [
+    // 这里是第一套：波奇塔壁纸 + 小橘兽图标
+    { bg: 'boqita.jpg',    icon: 'tu.png'  }, 
+    //  这里是第二套：tupian1壁纸 + 图标
+    { bg: 'tupian1.jpg',   icon: 'dgut.png' } 
+    // 按照上面这个格式加逗号往下写
+];
+
+let currentThemeIndex = 0;
+
+// 应用主题（同时切换背景和图标）
+function applyTheme(index) {
+    const theme = themeConfig[index];
+    
+    // 1. 换背景图
+    document.documentElement.style.setProperty('--bg-image', `url('${theme.bg}')`);
+    
+    // 2. 换右下角彩蛋图标
+    const iconImg = document.getElementById('eggIcon');
+    if (iconImg) {
+        iconImg.src = theme.icon;
+    }
+    
+    // 3. 把当前主题存到浏览器，刷新后不会变
+    localStorage.setItem('userThemeIndex', index);
+}
+
+// 点击彩蛋触发切换
+function changeWallpaper() {
+    soundClick(); // 播放点击音效
+    
+    // 切换到下一套主题（循环）
+    currentThemeIndex = (currentThemeIndex + 1) % themeConfig.length;
+    applyTheme(currentThemeIndex);
+}
+
+// 页面加载时，读取上次选的主题
+window.addEventListener('DOMContentLoaded', () => {
+    const savedIndex = localStorage.getItem('userThemeIndex');
+    if (savedIndex !== null) {
+        currentThemeIndex = parseInt(savedIndex);
+        // 防止存的数字超标
+        if (currentThemeIndex >= themeConfig.length) currentThemeIndex = 0;
+        applyTheme(currentThemeIndex);
+    } else {
+        // 第一次打开，默认应用第一套主题
+        applyTheme(0);
+    }
+});
+
 // ==================== 音效引擎 (Minecraft 风格) ====================
 let audioCtx = null;
 
@@ -621,5 +699,10 @@ generateMatrix('eq');
 generateMatrix('eig');
 </script>
 
+<!-- 👇 彩蛋：右下角小图标，鼠标移上去才显示 -->
+<div onclick="changeWallpaper()" class="easter-egg-btn" title="?">
+    <!-- 注意这里加了 id="eggIcon" -->
+    <img src="tu.png" id="eggIcon" alt="彩蛋">
+</div>
 </body>
 </html>
