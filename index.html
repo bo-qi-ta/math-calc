@@ -14,53 +14,76 @@
             --text: #333333;
             --border: #e0e6ed;
         }
-	.easter-egg-btn {
-    		position: fixed;      /* 悬浮固定在屏幕上 */
-    		bottom: 20px;
-    		right: 20px;
-    		width: 80px;          /* 设置图片宽度 */
-    		height: 80px;         /* 设置图片高度 */
-    		cursor: pointer;
-    		opacity: 0.25;        /* 平时透明度调低，隐藏得更深 */
-    		transition: opacity 0.3s, transform 0.3s;
-    		z-index: 9999;
-    		user-select: none;
-    		display: flex;
-    		justify-content: center;
-    		align-items: center;
-		}
-	.easter-egg-btn img {
-    		width: 100%;
-    		height: 100%;
-    		object-fit: contain;  /* 保持图片比例不变形 */
-    		filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2)); /* 给图片加点小阴影，更好看 */
-		}
-	.easter-egg-btn:hover {
-    		opacity: 1;           /* 鼠标移上去完全显示 */
-    		transform: scale(1.2) rotate(10deg); /* 放大并轻微旋转，更活泼 */
-		}
+
+        /* 右下角彩蛋按钮 */
+        .easter-egg-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            cursor: pointer;
+            opacity: 0.25;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 9999;
+            user-select: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .easter-egg-btn img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+        }
+        .easter-egg-btn:hover {
+            opacity: 1;
+            transform: scale(1.2) rotate(10deg);
+        }
+
         body {
-   	 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-   	 
-    	 background-image: var(--bg-image, url('tupian1.jpg')); /* 默认用dgut.jpg */
-   	 background-size: cover;
-   	 background-position: center;
-    	 background-attachment: fixed;
-    	 color: var(--text);
-    	 margin: 0;
-   	 padding: 20px;
-    	 display: flex;
-    justify-content: center;
-		}
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: var(--bg-image, url('boqita.jpg')); 
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+            transition: background-image 0.5s ease;
+        }
+
         .container {
             width: 100%;
             max-width: 1000px;
-            background: rgba(255, 255, 255, 0.85);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
             overflow: hidden;
-            backdrop-filter: blur(5px);
-        }        
+            backdrop-filter: blur(10px);
+            transition: background 0.5s ease, color 0.5s ease;
+        }
+
+        /* 底部 Logo */
+        .footer-logo {
+            margin-top: 30px;
+            text-align: center;
+            width: 100%;
+            padding-bottom: 20px;
+        }
+        .footer-logo img {
+            max-width: 260px;
+            height: auto;
+            opacity: 0.85;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+        }
+
         .header {
             background: var(--primary);
             color: white;
@@ -68,6 +91,7 @@
             text-align: center;
         }
         .header h1 { margin: 0; font-size: 24px; }
+        
         .tabs {
             display: flex;
             background: #f8fafc;
@@ -87,31 +111,48 @@
             border-bottom-color: var(--primary);
             background: white;
         }
+
         .panel { display: none; padding: 25px; }
         .panel.active { display: block; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        
         input[type="text"], input[type="number"] {
-            width: 100%; padding: 10px; border: 1px solid var(--border);
-            border-radius: 6px; font-size: 14px; box-sizing: border-box;
+            width: 100%; padding: 12px; border: 2px solid var(--border);
+            border-radius: 12px; font-size: 14px; box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.8);
+            transition: border 0.3s;
         }
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
         .btn {
             background: var(--primary); color: white; border: none;
-            padding: 10px 20px; border-radius: 6px; cursor: pointer;
+            padding: 12px 24px; border-radius: 12px; cursor: pointer;
             font-size: 14px; margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.2s;
         }
-        .btn:hover { background: var(--primary-dark); }
+        .btn:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-2px);
+        }
         .btn-sm { padding: 5px 10px; font-size: 12px; margin: 0; }
+        
         .result {
             margin-top: 20px; padding: 15px; background: #f8fafc;
             border: 1px solid var(--border); border-radius: 6px;
             font-family: 'Consolas', monospace; white-space: pre-wrap;
             max-height: 400px; overflow-y: auto;
         }
+        
         .matrix-row { display: flex; gap: 8px; margin-bottom: 8px; }
         .matrix-row input { flex: 1; text-align: center; }
         .error { color: #e53e3e; }
         .success { color: #38a169; }
+        
         .global-setting {
             padding: 10px 20px; background: #eef4fb; border-bottom: 1px solid var(--border);
             display: flex; align-items: center; gap: 10px; font-size: 14px;
@@ -123,11 +164,11 @@
 
 <div class="container">
     <div class="header">
-    <h1>📐 线性代数计算器（五章）</h1>
-    <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">课程设计 | 姓名：谭力菲 | 学号：2026404030325</p>
+        <h1>📐 线性代数计算器（五章）</h1>
+        <p style="margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;">课程设计 | 姓名：谭力菲 | 学号：2026404030325</p>
     </div>
 
-    <!-- 新增：全局随机数范围设置 -->
+    <!-- 全局随机数范围设置 -->
     <div class="global-setting">
         <span>🎲 随机数生成范围：</span>
         <input type="number" id="randMin" value="-20">
@@ -158,7 +199,6 @@
         
         <hr style="margin: 25px 0; border: 0; border-top: 1px dashed #ccc;">
         
-        <!-- 修改：逆序数计算（去掉严格1到n校验，支持任意数字序列） -->
         <h3>逆序数计算</h3>
         <div class="form-group">
             <label>输入数字序列（如 3,1,2 或 3 1 2 或 8 5 3）：</label>
@@ -225,25 +265,40 @@
 </div>
 
 <script>
-// ==================== 壁纸切换功能 ====================
-// ==================== 壁纸与彩蛋联动功能 ====================
-// 把壁纸和对应的图标配对放好
+// ==================== 主题与壁纸联动功能 ====================
 const themeConfig = [
-    // 这里是第一套：波奇塔壁纸 + 小橘兽图标
-    { bg: 'boqita.jpg',    icon: 'tu.png'  }, 
-    //  这里是第二套：tupian1壁纸 + 图标
-    { bg: 'tupian1.jpg',   icon: 'dgut.png' } 
-    // 按照上面这个格式加逗号往下写
+    // 主题1：可爱波奇塔风（暖橙色）
+    { 
+        name: '可爱风',
+        bg: "url('boqita.jpg')",    // 图片背景用 url()
+        icon: 'tu.png',      
+        primary: '#ff8c42',       
+        primaryDark: '#e66a1f',   
+        cardBg: 'rgba(255, 252, 245, 0.85)', 
+        text: '#4a3b32',          
+        border: '#fce4d6'         
+    },
+    // 主题2：校园学术风（东莞理工绿，纯CSS渐变代替图片）
+    { 
+        name: '学术风',
+        bg: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', // 纯色渐变，不怕图片丢失
+        icon: 'dgut.png',    
+        primary: '#007e4b',       
+        primaryDark: '#005c36',   
+        cardBg: 'rgba(255, 255, 255, 0.95)', 
+        text: '#1a202c',          
+        border: '#c6f6d5'         
+    }
 ];
 
 let currentThemeIndex = 0;
 
-// 应用主题（同时切换背景和图标）
+// 应用主题（同时切换背景、图标和颜色）
 function applyTheme(index) {
     const theme = themeConfig[index];
     
-    // 1. 换背景图
-    document.documentElement.style.setProperty('--bg-image', `url('${theme.bg}')`);
+    // 1. 换背景图（直接使用 theme.bg，它可能是 url(...) 也可能是 linear-gradient(...)）
+    document.documentElement.style.setProperty('--bg-image', theme.bg);
     
     // 2. 换右下角彩蛋图标
     const iconImg = document.getElementById('eggIcon');
@@ -251,15 +306,20 @@ function applyTheme(index) {
         iconImg.src = theme.icon;
     }
     
-    // 3. 把当前主题存到浏览器，刷新后不会变
+    // 3. 动态修改 CSS 变量，实现界面换肤
+    document.documentElement.style.setProperty('--primary', theme.primary);
+    document.documentElement.style.setProperty('--primary-dark', theme.primaryDark);
+    document.documentElement.style.setProperty('--card-bg', theme.cardBg);
+    document.documentElement.style.setProperty('--text', theme.text);
+    document.documentElement.style.setProperty('--border', theme.border);
+    
+    // 4. 存入浏览器
     localStorage.setItem('userThemeIndex', index);
 }
 
 // 点击彩蛋触发切换
 function changeWallpaper() {
-    soundClick(); // 播放点击音效
-    
-    // 切换到下一套主题（循环）
+    soundClick(); 
     currentThemeIndex = (currentThemeIndex + 1) % themeConfig.length;
     applyTheme(currentThemeIndex);
 }
@@ -269,11 +329,9 @@ window.addEventListener('DOMContentLoaded', () => {
     const savedIndex = localStorage.getItem('userThemeIndex');
     if (savedIndex !== null) {
         currentThemeIndex = parseInt(savedIndex);
-        // 防止存的数字超标
         if (currentThemeIndex >= themeConfig.length) currentThemeIndex = 0;
         applyTheme(currentThemeIndex);
     } else {
-        // 第一次打开，默认应用第一套主题
         applyTheme(0);
     }
 });
@@ -294,7 +352,6 @@ function initAudio() {
     }
 }
 
-// 播放单个音调的基础函数（新增结束频率参数，支持滑音）
 function playTone(freq, type, duration, vol, freqEnd = null) {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
@@ -316,31 +373,15 @@ function playTone(freq, type, duration, vol, freqEnd = null) {
     osc.stop(audioCtx.currentTime + duration);
 }
 
-// 1. 点击标签/按钮的声音（MC 木头按钮“咔哒”声）
-function soundClick() { 
-    initAudio(); 
-    playTone(600, 'triangle', 0.08, 0.15, 200); 
-}
-
-// 2. 生成矩阵的声音（MC 物品弹出/活塞声）
-function soundGenerate() {
-    initAudio();
-    playTone(150, 'square', 0.1, 0.1, 50); 
-}
-
-// 3. 计算成功的声音（MC 经验球“叮铃”声）
+function soundClick() { initAudio(); playTone(600, 'triangle', 0.08, 0.15, 200); }
+function soundGenerate() { initAudio(); playTone(150, 'square', 0.1, 0.1, 50); }
 function soundSuccess() {
     initAudio();
     playTone(800, 'sine', 0.1, 0.1);
     setTimeout(() => playTone(1200, 'sine', 0.1, 0.1), 60);
     setTimeout(() => playTone(1600, 'sine', 0.15, 0.1), 120);
 }
-
-// 4. 计算失败的声音（MC 村民“哼”声）
-function soundError() {
-    initAudio();
-    playTone(150, 'sawtooth', 0.3, 0.1, 80);
-}
+function soundError() { initAudio(); playTone(150, 'sawtooth', 0.3, 0.1, 80); }
 
 // ==================== 页面逻辑 ====================
 
@@ -350,9 +391,8 @@ function switchTab(num) {
     document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === num - 1));
 }
 
-// 生成矩阵输入框 (读取全局随机数范围并随机填充)
 function generateMatrix(type) {
-    soundGenerate(); // 👈 新增：点击生成矩阵时播放音效
+    soundGenerate(); 
 
     let minVal = parseInt(document.getElementById('randMin').value);
     let maxVal = parseInt(document.getElementById('randMax').value);
@@ -432,7 +472,6 @@ function generateMatrix(type) {
     }
 }
 
-// 第1章：行列式
 function calcDet() {
     const n = parseInt(document.getElementById('detN').value);
     const resultDiv = document.getElementById('detResult');
@@ -459,8 +498,6 @@ function calcDet() {
     resultDiv.style.display = 'block';
 }
 
-// 逆序数计算（去掉强制1到n校验，支持任意数字序列）
-// 逆序数计算（升级版：支持不带空格的纯数字，如 46456476）
 function calcInversion() {
     const str = document.getElementById('permInput').value.trim();
     const resultDiv = document.getElementById('invResult');
@@ -477,12 +514,9 @@ function calcInversion() {
 
     try {
         let arr = [];
-        // 判断输入的格式
         if (str.includes(' ') || str.includes(',')) {
-            // 如果有空格或逗号，就按空格/逗号切割（支持多位数，如 10 2 7）
             arr = str.split(/[\s,]+/).map(Number);
         } else if (/^\d+$/.test(str)) {
-            // 如果没有空格没有逗号，且全都是数字，就自动拆分成单个数字
             arr = str.split('').map(Number);
         } else {
             throw new Error("输入格式错误，请输入数字！");
@@ -491,7 +525,6 @@ function calcInversion() {
         const n = arr.length;
         if (n < 2) throw new Error("至少需要两个数字才能计算逆序数！");
 
-        // 计算逆序数
         let invCount = 0;
         for (let i = 0; i < n; i++) {
             for (let j = i + 1; j < n; j++) {
@@ -511,8 +544,7 @@ function calcInversion() {
     resultDiv.textContent = output;
     resultDiv.style.display = 'block';
 }
-    
-// 第2章：矩阵运算
+
 function calcMat() {
     const n = parseInt(document.getElementById('matN').value);
     const resultDiv = document.getElementById('matResult');
@@ -548,7 +580,6 @@ function calcMat() {
     resultDiv.style.display = 'block';
 }
 
-// 第3章：向量组
 function calcVec() {
     const m = parseInt(document.getElementById('vecM').value);
     const n = parseInt(document.getElementById('vecN').value);
@@ -580,7 +611,6 @@ function calcVec() {
     resultDiv.style.display = 'block';
 }
 
-// 第4章：线性方程组
 function calcEq() {
     const n = parseInt(document.getElementById('eqN').value);
     const resultDiv = document.getElementById('eqResult');
@@ -650,7 +680,6 @@ function calcEq() {
     resultDiv.style.display = 'block';
 }
 
-// 第5章：特征值
 function calcEig() {
     const n = parseInt(document.getElementById('eigN').value);
     const resultDiv = document.getElementById('eigResult');
@@ -699,10 +728,15 @@ generateMatrix('eq');
 generateMatrix('eig');
 </script>
 
-<!-- 👇 彩蛋：右下角小图标，鼠标移上去才显示 -->
-<div onclick="changeWallpaper()" class="easter-egg-btn" title="?">
-    <!-- 注意这里加了 id="eggIcon" -->
+<!-- 底部固定的学校 Logo -->
+<div class="footer-logo">
+    <img src="dgut.png" alt="东莞理工学院">
+</div>
+
+<!-- 彩蛋：右下角小图标，鼠标移上去才显示 -->
+<div onclick="changeWallpaper()" class="easter-egg-btn" title="切换主题">
     <img src="tu.png" id="eggIcon" alt="彩蛋">
 </div>
+
 </body>
 </html>
